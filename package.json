@@ -1,0 +1,39 @@
+{
+  "name": "kyro-interview-assistant",
+  "version": "1.0.0",
+  "description": "Hybrid Browser & Electron Desktop AI Interview Assistant",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev:mock": "electron . --mock",
+    "start:web": "node server.js",
+    "package:win": "electron-builder --windows",
+    "package:mac": "electron-builder --mac"
+  },
+  "keywords": [
+    "interview",
+    "ai",
+    "assistant",
+    "electron",
+    "speech-recognition"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.kyro.interviewassistant",
+    "productName": "InterviewAI",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    }
+  }
+}

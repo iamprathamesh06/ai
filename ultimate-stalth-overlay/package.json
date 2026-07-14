@@ -1,0 +1,13 @@
+{
+    "name": "stealth-overlay",
+    "version": "1.0.0",
+    "main": "index.js",
+    "gypfile": true,
+    "scripts": {
+        "rebuild": "node-gyp rebuild --target=34.0.0 --disturl=https://electronjs.org/headers"
+    },
+    "devDependencies": {
+        "nan": "^2.28.0",
+        "node-gyp": "^12.4.0"
+    }
+}

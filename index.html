@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterviewAI - Desktop & Web Prep Assistant</title>
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Prism.js Syntax Highlighting Style -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Lucide Icons Library -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Custom Titlebar for Desktop (Visible in Electron, hidden in Web Browser) -->
+  <header class="app-titlebar">
+    <div class="titlebar-logo">
+      <div class="logo-glow"></div>
+      <i data-lucide="cpu" class="logo-icon"></i>
+      <span class="logo-text">Interview<span class="accent">AI</span></span>
+      <span id="env-badge" class="badge">Detecting...</span>
+    </div>
+    
+    <div class="titlebar-drag-region"></div>
+    
+    <div class="titlebar-controls window-controls">
+      <button class="control-btn" id="win-min-btn" title="Minimize">
+        <i data-lucide="minus" class="control-icon"></i>
+      </button>
+      <button class="control-btn" id="win-max-btn" title="Maximize/Restore">
+        <i data-lucide="square" class="control-icon"></i>
+      </button>
+      <button class="control-btn close-btn" id="win-close-btn" title="Close">
+        <i data-lucide="x" class="control-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Web Browser Mode Notification (Visible in Browser, hidden in Electron) -->
+  <div class="browser-banner browser-only">
+    <i data-lucide="info" class="banner-icon"></i>
+    <span>Running in Web Browser mode. Keys will be stored in local cookies/storage. For encrypted local safety, run as a Windows Desktop App.</span>
+  </div>
+
+  <!-- Main Container -->
+  <main class="app-container">
+    
+    <section class="split-view">
+      
+      <!-- Left Panel: Interview Question input -->
+      <div class="panel question-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i data-lucide="help-circle" class="panel-icon"></i>
+            <h2>Ask Your Question</h2>
+          </div>
+          <span class="sub-text">Type or dictate like you are in a live interview</span>
+        </div>
+        
+        <div class="input-card">
+          <textarea id="question-input" placeholder="State your interview question or coding problem here... e.g., 'Explain the difference between call and apply in JavaScript, and write a quick example.'"></textarea>
+          
+          <div class="input-footer">
+            <div class="left-actions">
+              <button id="mic-btn" class="action-btn circle-btn" title="Start Dictation (Voice-to-Text)">
+                <i data-lucide="mic" class="btn-icon"></i>
+                <div class="pulse-ring"></div>
+              </button>
+              <button id="paste-btn" class="action-btn secondary-btn" title="Paste from Clipboard">
+                <i data-lucide="clipboard-paste" class="btn-icon"></i>
+                <span>Paste</span>
+              </button>
+              <button id="clear-btn" class="action-btn secondary-btn text-danger" title="Clear input">
+                <i data-lucide="trash-2" class="btn-icon"></i>
+              </button>
+            </div>
+            
+            <div class="right-info">
+              <span id="char-count">0 characters</span>
+            </div>
+          </div>
+        </div>
+        
+        <button id="submit-btn" class="submit-btn">
+          <span>Get AI Answer</span>
+          <i data-lucide="send" class="btn-icon-right"></i>
+        </button>
+      </div>
+
+      <!-- Right Panel: AI Answer rendering and speaking -->
+      <div class="panel answer-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i data-lucide="message-square-code" class="panel-icon"></i>
+            <h2>AI Interview Feedback</h2>
+          </div>
+          
+          <!-- Audio Playback Controls -->
+          <div class="audio-controls">
+            <label for="speed-select" class="speed-label">Speech Speed:</label>
+            <select id="speed-select" class="speed-select">
+              <option value="0.75">0.75x</option>
+              <option value="1.0" selected>1.0x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="1.75">1.75x</option>
+            </select>
+            
+            <button id="speak-btn" class="action-btn secondary-btn" title="Read Aloud" disabled>
+              <i data-lucide="volume-2" id="speak-icon" class="btn-icon"></i>
+              <span id="speak-text">Speak</span>
+            </button>
+            <button id="copy-btn" class="action-btn secondary-btn" title="Copy answer to clipboard" disabled>
+              <i data-lucide="copy" class="btn-icon"></i>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+        
+        <div class="answer-card">
+          <!-- Live Answer Area -->
+          <div id="answer-content" class="answer-content">
+            <div class="placeholder-state">
+              <i data-lucide="sparkles" class="placeholder-icon"></i>
+              <h3>Awaiting Interview Prompt</h3>
+              <p>Type/speak your question on the left and submit. The AI response and code examples will compile here.</p>
+            </div>
+          </div>
+          
+          <!-- Typing Shimmer Loading State -->
+          <div id="loading-state" class="loading-state hidden">
+            <div class="shimmer-line line-1"></div>
+            <div class="shimmer-line line-2"></div>
+            <div class="shimmer-line line-3"></div>
+            <div class="shimmer-line line-4"></div>
+            <div class="shimmer-text">AI is formulating structured response...</div>
+          </div>
+        </div>
+      </div>
+      
+    </section>
+  </main>
+
+  <!-- Bottom Utility Controls (Floating settings gear) -->
+  <footer class="app-footer">
+    <div class="footer-left">
+      <span class="status-light-container">
+        <span id="status-indicator" class="status-light disconnected"></span>
+        <span id="status-text">Disconnected (No API Key)</span>
+      </span>
+    </div>
+    
+    <div class="footer-right">
+      <button id="stealth-trigger" class="settings-trigger-btn desktop-only" title="Toggle Invisible Mode for Screen Sharing (Ctrl+Alt+S)">
+        <i data-lucide="eye" id="stealth-icon" class="settings-icon"></i>
+        <span id="stealth-text">Invisible: OFF</span>
+      </button>
+      <button id="settings-trigger" class="settings-trigger-btn" title="Open API and Model Settings">
+        <i data-lucide="settings" class="settings-icon"></i>
+        <span>Settings</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- Settings Modal (Glassmorphic) -->
+  <div id="settings-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i data-lucide="settings-2" class="modal-icon"></i>
+          <h3>Application Settings</h3>
+        </div>
+        <button id="modal-close-btn" class="modal-close-icon-btn">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- API Provider Selector -->
+        <div class="form-group">
+          <label class="form-label">AI Engine Provider</label>
+          <div class="provider-toggle-group">
+            <button class="provider-tab active" data-provider="gemini">
+              <i data-lucide="sparkles" class="tab-icon"></i>
+              <span>Google Gemini</span>
+            </button>
+            <button class="provider-tab" data-provider="openai">
+              <i data-lucide="zap" class="tab-icon"></i>
+              <span>OpenAI ChatGPT</span>
+            </button>
+            <button class="provider-tab" data-provider="groq">
+              <i data-lucide="gauge" class="tab-icon"></i>
+              <span>Groq (LPU Speed)</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- API Key Input -->
+        <div class="form-group">
+          <label class="form-label" for="api-key-input">
+            API Key
+            <span class="required-asterisk">*</span>
+          </label>
+          <div class="input-password-wrapper">
+            <input type="password" id="api-key-input" placeholder="Paste your API key here...">
+            <button id="toggle-password-visibility" class="password-toggle-btn" title="Show/Hide Key">
+              <i data-lucide="eye" id="password-eye-icon"></i>
+            </button>
+          </div>
+          <span class="field-hint">Stored securely using safeStorage (Desktop) or cookies (Browser).</span>
+        </div>
+        
+        <!-- Model Selection -->
+        <div class="form-group">
+          <label class="form-label" for="model-select">Model Version</label>
+          <select id="model-select" class="form-input-select">
+            <!-- Dynamically populated based on provider selection -->
+          </select>
+        </div>
+        
+        <!-- System Prompt Guidelines -->
+        <div class="form-group">
+          <label class="form-label" for="system-prompt-input">Interviewer Instructions (System Prompt)</label>
+          <textarea id="system-prompt-input" rows="4" placeholder="Configure how the AI should react..."></textarea>
+          <span class="field-hint">Directs the AI on the tone, language, and length of its feedback.</span>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="settings-cancel-btn" class="modal-btn secondary-btn">Cancel</button>
+        <button id="settings-save-btn" class="modal-btn primary-btn">Save Configuration</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marked.js for Markdown Compilations -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <!-- Prism.js Syntax Core -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  
+  <!-- Prism.js Autoloader for dynamic language extensions -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <!-- Main Renderer Script Module -->
+  <script type="module" src="src/renderer/app.js"></script>
+</body>
+</html>
